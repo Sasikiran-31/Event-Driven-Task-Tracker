@@ -181,7 +181,3 @@ This project is licensed under the **MIT License**.
 
 **Sasikiran Sivakumar**
 Backend Developer | Java | Spring Boot | Distributed Systems
-
----
-
-⭐ If you find this project useful, consider starring the repository!
