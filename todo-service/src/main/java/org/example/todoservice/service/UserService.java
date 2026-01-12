@@ -4,12 +4,14 @@ package org.example.todoservice.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.example.todoservice.dto.TaskDTO;
 import org.example.todoservice.dto.UserDTO;
 import org.example.todoservice.model.Task;
 import org.example.todoservice.model.User;
 import org.example.todoservice.repository.TaskRepo;
 import org.example.todoservice.repository.UserRepo;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +24,23 @@ public class UserService{
     private final UserRepo userRepo;
     private final TaskRepo taskRepo;
 
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private static final String TOPIC = "task-events";
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
-    public UserService(UserRepo userRepo, TaskRepo taskRepo){
+    public UserService(UserRepo userRepo, TaskRepo taskRepo, KafkaTemplate<String, String> kafkaTemplate){
         this.userRepo = userRepo;
         this.taskRepo = taskRepo;
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    private void sendMessage(String eventType, TaskDTO taskDTO) {
+        String payload = String.format("{\"Event\"Type\":\"\"%s\",\"taskId\":%d,\"TaskDecription\":\"%s\"}",
+                eventType, taskDTO.taskid(), taskDTO.task_description());
+        kafkaTemplate.send(new ProducerRecord<>(TOPIC, String.valueOf(taskDTO.taskid()), payload));
+
     }
 
     public UserDTO save(User user){
@@ -47,6 +60,7 @@ public class UserService{
                     .orElseThrow();
                 user.addTask(task);
                 taskRepo.save(task);
+                sendMessage("TASK-CREATED", new TaskDTO(task.getTaskId(), task.getDescription()));
                 return new UserDTO(user.getUsername(), user.getUserId());
 
     }
