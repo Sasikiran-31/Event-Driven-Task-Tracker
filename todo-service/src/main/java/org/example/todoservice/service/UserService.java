@@ -22,6 +22,7 @@ public class UserService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private static final String TOPIC = "task-events";
 
+
     private void sendMessage(String eventType, TaskDTO taskDTO) {
         String payload = String.format("{\"Event\"Type\":\"\"%s\",\"taskId\":%d,\"TaskDecription\":\"%s\"}",
                 eventType, taskDTO.taskid(), taskDTO.task_description());
@@ -57,7 +58,12 @@ public class UserService {
                     .orElseThrow();
                 user.addTask(task);
                 taskRepo.save(task);
-                sendMessage("TASK-CREATED", new TaskDTO(task.getTaskId(), task.getDescription()));
+                try{
+                    sendMessage("TASK-CREATED", new TaskDTO(task.getTaskId(), task.getDescription()));
+                }catch (Exception e){
+                    System.err.println(e.getMessage());
+                }
+
                 return new UserDTO(user.getUsername(), user.getUserId());
 
     }
