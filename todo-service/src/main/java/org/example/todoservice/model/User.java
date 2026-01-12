@@ -10,25 +10,28 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name="users")
-@Getter
 public class User {
-
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
     private String username;
     private String password;
 
-    @OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
-    public void addTask(Task task){
+    public void addTask(Task task) {
         tasks.add(task);
         task.setUser(this);
-        
     }
+
 }

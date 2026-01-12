@@ -10,6 +10,7 @@ import org.example.todoservice.model.Task;
 import org.example.todoservice.model.User;
 import org.example.todoservice.repository.TaskRepo;
 import org.example.todoservice.repository.UserRepo;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -21,12 +22,16 @@ public class UserService{
     private final UserRepo userRepo;
     private final TaskRepo taskRepo;
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
     public UserService(UserRepo userRepo, TaskRepo taskRepo){
         this.userRepo = userRepo;
         this.taskRepo = taskRepo;
     }
 
     public UserDTO save(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepo.save(user);
         return new UserDTO(user.getUsername(), user.getUserId());
 
