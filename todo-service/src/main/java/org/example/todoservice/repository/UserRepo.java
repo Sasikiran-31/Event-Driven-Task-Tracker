@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface UserRepo extends JpaRepository<User, Integer>{
 
     void deleteUserByUsername(String username);
+    User findbyUsername(String username);
 
 }
